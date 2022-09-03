@@ -25,11 +25,11 @@
 
                      <div class="col-md-5 center-item">
                         <div class="input-group number-spinner">
-                           <button class="btn btn-default"><i id = "first-minus" class="fas fa-minus"></i></button>
+                           <button class="btn btn-default"><i id = "phone-minus" class="fas fa-minus"></i></button>
                            <input id = "phone-amount"type="text" class="form-control text-center" value="1">
-                           <button class="btn btn-default"><i id="first-plus" class="fas fa-plus"></i></button>
+                           <button class="btn btn-default"><i id="phone-plus" class="fas fa-plus"></i></button>
                         </div>
-                        <h5>$1219</h5>
+                        <h5 id = "phone-price">$1219</h5>
                         <img src="images/remove.png" alt="" class="remove-item">
                      </div>
                   </div>
@@ -43,12 +43,12 @@
                      </div>
                      <div class="col-md-5 center-item">
                         <div class="input-group number-spinner">
-                           <button class="btn btn-default"><i class="fas fa-minus"></i></button>
-                           <input type="text" class="form-control text-center" value="1">
-                           <button class="btn btn-default"><i class="fas fa-plus"></i></button>
+                           <button class="btn btn-default"><i id = "case-minus"class="fas fa-minus"></i></button>
+                           <input id ="case-amount" type="text" class="form-control text-center" value="1">
+                           <button class="btn btn-default"><i id ="case-plus" class="fas fa-plus"></i></button>
 
                         </div>
-                        <h5>$59</h5>
+                        <h5 id = "case-price">$59</h5>
                         <img src="images/remove.png" alt="" class="remove-item">
                      </div>
                   </div>
@@ -59,14 +59,14 @@
 
                      <div class="col-md-8">
                         <h5>Subtotal: </h5>
-                        <h5>Tax:</h5>
+                        <h5>Tax(10%):</h5>
                         <h5>Total:</h5>
                      </div>
 
                      <div class="col-md-4 status">
-                        <h5>$1,278</h5>
-                        <h5>$0</h5>
-                        <h5>$1,278</h5>
+                        <h5>$<span id ="subTotal">1,278</span></h5>
+                        <h5>$<span id ="tax">128</span></h5>
+                        <h5>$<span id ="total">1,406</span></h5>
                      </div>
                   </div>
                </div>
@@ -79,27 +79,168 @@
    </section>
    <script>
       
-      var captureFirstPlus = document.getElementById("first-plus");
-      var firstPlusEvent = captureFirstPlus.addEventListener("click", function(){
-         var capturePhoneAmount = document.getElementById("phone-amount").value;
-         var phoneAmountReal = parseInt(capturePhoneAmount);
-         var totalPlus = phoneAmountReal + 1;
-         document.getElementById("phone-amount").value =totalPlus;
+
+      document.getElementById('case-plus').addEventListener('click', function(){
+         handleProductChange('case', true);
+                
+      })
+      
+
+      document.getElementById('case-minus').addEventListener('click', function(){
+         handleProductChange('case', false);
+         
+      })
+      document.getElementById('phone-plus').addEventListener('click', function(){
+         handleProductChange('phone', true); 
+                
+      })
+      
+
+      document.getElementById('phone-minus').addEventListener('click', function(){
+         handleProductChange('phone', false);
+         
       })
 
-      var captureFirstMinus = document.getElementById("first-minus");
-      var firstMinusEvent = captureFirstMinus.addEventListener("click", function(){
-         
-         var capturePhoneAmount = document.getElementById("phone-amount").value;
-         var phoneAmountReal = parseInt(capturePhoneAmount);
-         console.log(phoneAmountReal);
-         if (phoneAmountReal > 0){
-            var totalMinus = phoneAmountReal - 1;
-            document.getElementById("phone-amount").value =totalMinus;
+      
+
+      // function for handling both Phone and case change
+      // making the commented two function into 1 function
+
+      function handleProductChange(product, isIncrease){
+         var productValue = document.getElementById(product + '-amount').value;
+         // should be parsed into int as by default it is a string
+         var productCount = parseInt(productValue);
+         var newProductCount = 0; // initial
+         // when plus is clicked
+         if (isIncrease == true){
+            newProductCount = productCount + 1;
 
          }
+         //when minus is clicked and to stop decrementing value when the value reaches 0
+         else if (isIncrease == false && productCount > 0){
+            newProductCount = productCount - 1;
+         }
          
-      })
+         document.getElementById(product + '-amount').value = newProductCount;
+         // updating the price as per case count
+         var updateProductPrice = 0; // initial
+         if (product == 'case'){
+            var updatedProductPrice = newProductCount*59;
+
+         }
+         else if(product == 'phone'){
+            var updatedProductPrice = newProductCount*1219;
+         }
+        
+         // setting up the value
+         // in order to add dollar sign we have added dollar before in the next line
+         document.getElementById(product + '-price').innerText = '$' + updatedProductPrice;
+         calculateSubTotal();  
+         calculateTax();
+         calculateTotal();
+
+      }
+
+      // calculate tax
+
+      function calculateTax(){
+         var taxValue = document.getElementById('tax').innerText;
+         // let tax be 10%
+         var phoneValue = document.getElementById('phone-amount').value;
+         var phoneCount = parseInt(phoneValue);
+         var caseValue = document.getElementById('case-amount').value;
+         var caseCount = parseInt(caseValue);
+         var calculateTax = (phoneCount * 1219 + caseCount * 59)*0.1;
+         // rounded the value of tax
+         var finalCalculateTax = Math.round(calculateTax);
+         
+         document.getElementById('tax').innerText = finalCalculateTax;
+         return finalCalculateTax; // for further calculation
+
+
+
+
+      }
+
+      // calculate sub total
+
+      function calculateSubTotal(){
+         var phoneValue = document.getElementById('phone-amount').value;
+         var phoneCount = parseInt(phoneValue);
+         var caseValue = document.getElementById('case-amount').value;
+         var caseCount = parseInt(caseValue);
+
+         var finalSubTotal = phoneCount * 1219 + caseCount * 59;
+         document.getElementById('subTotal').innerText = finalSubTotal;
+
+         return finalSubTotal;
+
+
+      }
+
+      // calculate total
+
+      function calculateTotal(){
+         var getFinalSubTotal = parseFloat(calculateSubTotal());
+         var getFinalTax = parseFloat(calculateTax());
+
+         var finalTotal = getFinalSubTotal + getFinalTax;
+         document.getElementById('total').innerText = finalTotal;
+
+      }
+
+
+      // // function for handling Case Change
+      // function handleCaseChange(isIncrease){
+      //    var caseValue = document.getElementById('case-amount').value;
+      //    // should be parsed into int as by default it is a string
+      //    var caseCount = parseInt(caseValue);
+      //    var newCaseCount = 0; // initial
+      //    // when plus is clicked
+      //    if (isIncrease == true){
+      //       newCaseCount = caseCount + 1;
+
+      //    }
+      //    //when minus is clicked and to stop decrementing value when the value reaches 0
+      //    else if (isIncrease == false && caseCount > 0){
+      //       newCaseCount = caseCount - 1;
+      //    }
+         
+      //    document.getElementById('case-amount').value = newCaseCount;
+      //    // updating the price as per case count
+      //    var updatedCasePrice = newCaseCount*59;
+      //    // setting up the value
+      //    // in order to add dollar sign we have added dollar before in the next line
+      //    document.getElementById('case-price').innerText = '$' + updatedCasePrice;
+
+      // }
+
+      // // function for handling Phone Change
+
+      // function handlePhoneChange(isIncrease){
+      //    var phoneValue = document.getElementById('phone-amount').value;
+      //    // should be parsed into int as by default it is a string
+      //    var phoneCount = parseInt(phoneValue);
+      //    var newPhoneCount = 0; // initial
+      //    // when plus is clicked
+      //    if (isIncrease == true){
+      //       newPhoneCount = phoneCount + 1;
+
+      //    }
+      //    //when minus is clicked and to stop decrementing value when the value reaches 0
+      //    else if (isIncrease == false && phoneCount > 0){
+      //       newPhoneCount = phoneCount - 1;
+      //    }
+         
+      //    document.getElementById('phone-amount').value = newPhoneCount;
+      //    // updating the price as per phone count
+      //    var updatedPhonePrice = newPhoneCount*1219;
+      //    // setting up the value
+      //    // in order to add dollar sign we have added dollar before in the next line
+      //    document.getElementById('phone-price').innerText = '$' + updatedPhonePrice;
+
+      // }
+      
    </script>
 </body>
 
